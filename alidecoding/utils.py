@@ -1,5 +1,6 @@
 import dgl
 import networkx as nx
+import rustworkx as rx
 import numpy as np
 
 
@@ -20,6 +21,26 @@ def dgl_to_networkx(g: dgl.DGLGraph) -> nx.Graph:
         nx.set_edge_attributes(nx_graph, dict(zip(nx_graph.edges, data.numpy())), efeat)
     nx_graph = nx.Graph(nx_graph)  # convert to undirected graph
     return nx_graph
+
+
+def rustworkx_to_dgl(g: rx.PyGraph) -> dgl.DGLGraph:
+    """Construct the DGLGraph instance from rustworkx PyGraph instance, including node/edge attributes converting"""
+    raise NotImplementedError
+
+
+def dgl_to_rustworkx(g: dgl.DGLGraph) -> rx.PyGraph:
+    """Construct the rustworkx PyGraph instance from DGLGraph instance, including node/edge attributes converting"""
+    raise NotImplementedError
+
+
+def networkx_to_rustworkx(g: nx.Graph) -> rx.PyGraph:
+    """Construct the rustworkx PyGraph instance from networkx Graph instance, including node/edge attributes converting"""
+    return rx.networkx_converter(g, keep_attributes=True)
+
+
+def rustworkx_to_networkx(g: rx.PyGraph) -> nx.Graph:
+    """Construct the networkx Graph instance from rustworkx PyGraph instance, including node/edge attributes converting"""
+    raise NotImplementedError
 
 
 def proj_3d_to_2d(x, y, z):
