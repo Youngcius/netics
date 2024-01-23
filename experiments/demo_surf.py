@@ -101,7 +101,7 @@ def gpu_decoding():
 
 
 if __name__ == '__main__':
-    monolithic_decoding()
+    # monolithic_decoding()
     if d <= 21:
         distributed_decoding()
     gpu_decoding()
