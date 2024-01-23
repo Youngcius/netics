@@ -1,13 +1,14 @@
-import dgl
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 import qiskit.quantum_info as qi
 from functools import reduce
+from typing import Dict, Tuple
+from alidecoding.utils import proj_3d_to_2d
 
 
 def sample_errors(decoding_graph: nx.Graph):
-    """Re-sample errors according to edge attribute prob"""
+    """Re-sample errors according to edge attribute "prob" of a decoding graph"""
     error_probs = nx.get_edge_attributes(decoding_graph, 'prob')
     edge_errors = {edge: np.random.choice([0, 1], p=[1 - prob, prob]) for edge, prob in error_probs.items()}
     nx.set_edge_attributes(decoding_graph, edge_errors, 'error')
@@ -155,15 +156,14 @@ def gene_surf_decoding_graph(d, r, p_data=0.001, p_meas=0.001):
     return decoding_graph
 
 
-def proj_3d_to_2d(x, y, z):
-    """Isometric view: convert 3D position in space to 2D position on canvas"""
-    theta = np.pi / 9
-    phi = 3 * np.pi / 7
-    return (x + y * np.cos(phi) / 2) * np.cos(theta), (y * np.sin(phi) / 2 + 2 * z * np.cos(theta))
+def project_rep_errors(edge_errors: Dict[Tuple[int, int], int], code_distance: int, num_rounds: int) -> qi.Pauli:
+    """Project space-time Repetition Code error edges to the first time slice
 
-
-def project_rep_errors(edge_errors, code_distance, num_rounds) -> qi.Pauli:
-    """Project space-time Repetition Code error edges to the first time slice"""
+    Args:
+        edge_errors: dict of error edges with error value (0/1)
+        code_distance: code distance of the Repetition Code
+        num_rounds: number of time slices of the Repetition Code
+    """
     num_nodes = (code_distance - 1) * num_rounds + 1
 
     projected_edges = {(i, i + 1): 0 for i in range(code_distance - 1)}
@@ -189,12 +189,17 @@ def project_rep_errors(edge_errors, code_distance, num_rounds) -> qi.Pauli:
     return qi.Pauli(''.join(opr))
 
 
-def project_surf_errors(edge_errors, code_distance, num_rounds) -> qi.Pauli:
+def project_surf_errors(edge_errors: Dict[Tuple[int, int], int], code_distance: int, num_rounds: int) -> qi.Pauli:
     """
     Project space-time Surface Code error edges to the first time slice
     ---
     In presentation of qiskit.quantum_info.Pauli instance, with d^2 primitive Pauli compositions
     Suppose the decoding graph is on basis of X-stabilizer syndrome, so the inferred error edges are Z-type
+
+    Args:
+        edge_errors: dict of error edges with error value (0/1)
+        code_distance: code distance of the Surface Code
+        num_rounds: number of time slices of the Surface Code
     """
     xdim, ydim = code_distance // 2, code_distance + 1
     num_nodes = xdim * ydim * num_rounds + 1
@@ -230,14 +235,6 @@ def project_surf_errors(edge_errors, code_distance, num_rounds) -> qi.Pauli:
         opr[data_qubit] = 'Z'
 
     return qi.Pauli(''.join(opr))
-
-
-def get_leaf(tree: nx.Graph):
-    """Get leaf or isolated node from a tree"""
-    for node in tree.nodes:
-        if tree.degree(node) <= 1:
-            return node
-    return None
 
 
 def visualize_rep_decoding_graph(decoding_graph, code_distance, num_rounds, with_pseudo_ancilla=True,
@@ -284,26 +281,8 @@ def visualize_surf_decoding_graph(decoding_graph, code_distance, num_rounds, wit
     return fig
 
 
-def networkx_to_dgl(g: nx.Graph) -> dgl.DGLGraph:
-    """Construct the DGLGraph instance from networkx Graph instance, including node/edge attributes converting"""
-    g = g.to_directed()
-    node_attrs = list(g.nodes[list(g.nodes)[0]].keys())
-    edge_attrs = list(g.edges[list(g.edges)[0]].keys())
-    return dgl.from_networkx(g, node_attrs=node_attrs, edge_attrs=edge_attrs)
-
-
-def dgl_to_networkx(g: dgl.DGLGraph) -> nx.Graph:
-    """Construct the networkx Graph instance from DGLGraph instance, including node/edge attributes converting"""
-    nx_graph: nx.MultiDiGraph = dgl.to_networkx(g)
-    for nfeat, data in g.ndata.items():
-        nx.set_node_attributes(nx_graph, dict(zip(range(g.number_of_nodes()), data.numpy())), nfeat)
-    for efeat, data in g.edata.items():
-        nx.set_edge_attributes(nx_graph, dict(zip(nx_graph.edges, data.numpy())), efeat)
-    nx_graph = nx.Graph(nx_graph)  # convert to undirected graph
-    return nx_graph
-
-
 def replace_rep_pseudo_with_visual(g: nx.Graph, d: int):
+    """Convert the single pseudo node to multiple visual nodes for Repetition Code decoding graph visualization"""
     n = g.number_of_nodes()
     pseudo_node = n - 1
     visual_node = n
@@ -320,6 +299,7 @@ def replace_rep_pseudo_with_visual(g: nx.Graph, d: int):
 
 
 def replace_surf_pseudo_with_visual(g: nx.Graph, d: int):
+    """Convert the single pseudo node to multiple visual nodes for Surface Code decoding graph visualization"""
     n = g.number_of_nodes()
     pseudo_node = n - 1
     xdim, ydim = d // 2, d + 1
@@ -335,92 +315,3 @@ def replace_surf_pseudo_with_visual(g: nx.Graph, d: int):
         visual_node += 1
     g.remove_node(pseudo_node)
     return g
-
-
-def repetition_code_stabilizer(d) -> qi.PauliList:
-    ops = []
-    for i in range(d - 1):
-        opr = ['I'] * d
-        opr[i], opr[i + 1] = 'Z', 'Z'
-        ops.append(''.join(opr))
-    return qi.PauliList(ops)
-
-
-def surface_code_stabilizer(d) -> qi.PauliList:
-    def convert_2d_to_int(x, y):
-        return x + y * d
-
-    ops = []
-    ##################################################
-    ####### set Z-type stabilizer generators #########
-    # set intra stabilizer generators
-    start = 0
-    for y in range(d - 1):
-        if start == 0:
-            for x in range(0, d - 1, 2):
-                opr = ['I'] * d ** 2
-                opr[convert_2d_to_int(x, y)] = 'Z'
-                opr[convert_2d_to_int(x + 1, y)] = 'Z'
-                opr[convert_2d_to_int(x, y + 1)] = 'Z'
-                opr[convert_2d_to_int(x + 1, y + 1)] = 'Z'
-                ops.append(''.join(opr))
-        else:
-            for x in range(1, d, 2):
-                opr = ['I'] * d ** 2
-                opr[convert_2d_to_int(x, y)] = 'Z'
-                opr[convert_2d_to_int(x + 1, y)] = 'Z'
-                opr[convert_2d_to_int(x, y + 1)] = 'Z'
-                opr[convert_2d_to_int(x + 1, y + 1)] = 'Z'
-                ops.append(''.join(opr))
-        start ^= 1
-
-    # set boundary stabilizer generators
-    for y in range(1, d, 2):
-        opr = ['I'] * d ** 2
-        opr[convert_2d_to_int(0, y)] = 'Z'
-        opr[convert_2d_to_int(0, y + 1)] = 'Z'
-        ops.append(''.join(opr))
-
-    for y in range(0, d - 1, 2):
-        opr = ['I'] * d ** 2
-        opr[convert_2d_to_int(d - 1, y)] = 'Z'
-        opr[convert_2d_to_int(d - 1, y + 1)] = 'Z'
-        ops.append(''.join(opr))
-
-    ##################################################
-    ####### set X-type stabilizer generators #########
-    # set intra stabilizer generators
-    start = 1
-    for y in range(d - 1):
-        if start == 0:
-            for x in range(0, d - 1, 2):
-                opr = ['I'] * d ** 2
-                opr[convert_2d_to_int(x, y)] = 'X'
-                opr[convert_2d_to_int(x + 1, y)] = 'X'
-                opr[convert_2d_to_int(x, y + 1)] = 'X'
-                opr[convert_2d_to_int(x + 1, y + 1)] = 'X'
-                ops.append(''.join(opr))
-        else:
-            for x in range(1, d, 2):
-                opr = ['I'] * d ** 2
-                opr[convert_2d_to_int(x, y)] = 'X'
-                opr[convert_2d_to_int(x + 1, y)] = 'X'
-                opr[convert_2d_to_int(x, y + 1)] = 'X'
-                opr[convert_2d_to_int(x + 1, y + 1)] = 'X'
-                ops.append(''.join(opr))
-        start ^= 1
-
-    # set boundary stabilizer generators
-    for x in range(0, d - 1, 2):
-        opr = ['I'] * d ** 2
-        opr[convert_2d_to_int(x, 0)] = 'X'
-        opr[convert_2d_to_int(x + 1, 0)] = 'X'
-        ops.append(''.join(opr))
-
-    for x in range(1, d, 2):
-        opr = ['I'] * d ** 2
-        opr[convert_2d_to_int(x, d - 1)] = 'X'
-        opr[convert_2d_to_int(x + 1, d - 1)] = 'X'
-        ops.append(''.join(opr))
-
-    return qi.PauliList(ops)

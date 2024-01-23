@@ -1,11 +1,18 @@
+"""
+Classes defined in this file are monolithic CPU-based Union-Find decoders, using the union-find algorithm
+    MonoDecoder: CPU Union-Find decoder base class
+    MonoRepDecoder: CPU Union-Find decoder for repetition code
+    MonoSurfDecoder: CPU Union-Find decoder for surface code
+"""
 import time
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 from typing import List, Tuple, Dict, Set
 
-from . import Decoder, RepDecoder, SurfDecoder
-from .utils import replace_rep_pseudo_with_visual, replace_surf_pseudo_with_visual, proj_3d_to_2d
+from alidecoding.decoders import Decoder, RepDecoder, SurfDecoder
+from alidecoding.syndromes import replace_surf_pseudo_with_visual, replace_rep_pseudo_with_visual
+from alidecoding.utils import proj_3d_to_2d
 
 
 class Node:

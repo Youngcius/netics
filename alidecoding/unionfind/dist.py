@@ -1,10 +1,19 @@
+"""
+Classes defined in this file are distributed Union-Find decoders running on CPU
+    DistDecoder: distributed Union-Find decoder base class
+    DistRepDecoder: distributed Union-Find decoder for repetition code
+    DistSurfDecoder: distributed Union-Find decoder for surface code
+
+TODO: currently this distributed decoder is in form of emulation, not realistic parallel distributed processing
+"""
 import time
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 
-from . import Decoder, RepDecoder, SurfDecoder
-from .utils import replace_rep_pseudo_with_visual, replace_surf_pseudo_with_visual, proj_3d_to_2d
+from alidecoding.decoders import Decoder, RepDecoder, SurfDecoder
+from alidecoding.utils import proj_3d_to_2d
+from alidecoding.syndromes import replace_surf_pseudo_with_visual, replace_rep_pseudo_with_visual
 
 
 # from rich import console

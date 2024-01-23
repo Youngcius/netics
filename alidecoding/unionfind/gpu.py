@@ -1,8 +1,15 @@
+"""
+Classes defined in this file are GPU-based Union-Find decoders using DGL framework
+    GPUDecoder: GPU Union-Find decoder base class
+    GPURepDecoder: GPU Union-Find decoder for repetition code
+    GPUSurfDecoder: GPU Union-Find decoder for surface code
+"""
 import time
 import torch
 import networkx as nx
-from .utils import networkx_to_dgl, dgl_to_networkx
-from .distributed import DistDecoder, DistRepDecoder, DistSurfDecoder
+
+from alidecoding.utils import networkx_to_dgl, dgl_to_networkx
+from alidecoding.unionfind.dist import DistDecoder, DistRepDecoder, DistSurfDecoder
 
 
 # from rich import console

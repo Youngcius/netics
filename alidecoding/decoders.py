@@ -2,10 +2,12 @@ import warnings
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
-from .utils import repetition_code_stabilizer, surface_code_stabilizer
-from .utils import project_rep_errors, project_surf_errors, get_leaf, proj_3d_to_2d
-from .utils import visualize_rep_decoding_graph, visualize_surf_decoding_graph
-from .utils import replace_rep_pseudo_with_visual, replace_surf_pseudo_with_visual
+
+from alidecoding.utils import get_leaf, proj_3d_to_2d
+from alidecoding.syndromes import replace_surf_pseudo_with_visual, replace_rep_pseudo_with_visual
+from alidecoding.syndromes import visualize_surf_decoding_graph, visualize_rep_decoding_graph
+from alidecoding.syndromes import project_surf_errors, project_rep_errors
+from alidecoding.stabilizers import surface_code_stabilizer, repetition_code_stabilizer
 
 
 class Decoder:
