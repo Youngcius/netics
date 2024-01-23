@@ -97,11 +97,13 @@ def gpu_decoding():
     console.print('Guess errors:\t', decoder.guessed_error)
     console.print('Actual errors:\t', decoder.actual_error)
     console.print('Latency on GPU: {:.4f}s'.format(decoder.gpu_latency))
+    console.print('Transfer latency to GPU: {:.4f}s'.format(decoder.transfer_latency_to_gpu))
+    console.print('Transfer latency to CPU: {:.4f}s'.format(decoder.transfer_latency_to_cpu))
     console.print('Latency: {:.4f}s'.format(latency))
 
 
 if __name__ == '__main__':
-    # monolithic_decoding()
+    monolithic_decoding()
     if d <= 21:
         distributed_decoding()
     gpu_decoding()

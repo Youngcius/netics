@@ -24,11 +24,15 @@ class GPUDecoder(DistDecoder):
         super().__init__(decoding_graph, code_distance, num_rounds)
         self.dgl_graph = networkx_to_dgl(self.decoding_graph)
         self.gpu_latency = 0
+        self.transfer_latency_to_gpu = 0
+        self.transfer_latency_to_cpu = 0
 
     def decode(self):
         """If there is GPU available, use GPU to decode, otherwise use CPU to decode"""
         device = torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu')
+        start_time = time.time()
         self.dgl_graph = self.dgl_graph.to(device)  # move to GPU (if available)
+        self.transfer_latency_to_gpu = time.time() - start_time
         self.num_epochs = 0
         self.num_inner_epochs = []
         start_time = time.time()
@@ -50,7 +54,9 @@ class GPUDecoder(DistDecoder):
                 break
         self.gpu_latency = time.time() - start_time
 
+        start_time = time.time()
         self.dgl_graph = self.dgl_graph.cpu()  # move back to CPU
+        self.transfer_latency_to_cpu = time.time() - start_time
 
         self.decoding_graph = dgl_to_networkx(self.dgl_graph)  # copy node/edge attributes to networkx graph
 
