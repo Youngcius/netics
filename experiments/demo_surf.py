@@ -96,6 +96,7 @@ def gpu_decoding():
     console.print('Logical error: {}'.format(decoder.logical_error))
     console.print('Guess errors:\t', decoder.guessed_error)
     console.print('Actual errors:\t', decoder.actual_error)
+    console.print('Latency on GPU: {:.4f}s'.format(decoder.gpu_latency))
     console.print('Latency: {:.4f}s'.format(latency))
 
 

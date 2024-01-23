@@ -23,6 +23,7 @@ class GPUDecoder(DistDecoder):
     def __init__(self, decoding_graph: nx.Graph, code_distance: int, num_rounds: int) -> None:
         super().__init__(decoding_graph, code_distance, num_rounds)
         self.dgl_graph = networkx_to_dgl(self.decoding_graph)
+        self.gpu_latency = 0
 
     def decode(self):
         """If there is GPU available, use GPU to decode, otherwise use CPU to decode"""
@@ -30,6 +31,7 @@ class GPUDecoder(DistDecoder):
         self.dgl_graph = self.dgl_graph.to(device)  # move to GPU (if available)
         self.num_epochs = 0
         self.num_inner_epochs = []
+        start_time = time.time()
 
         while True:
             self.num_epochs += 1
@@ -46,6 +48,7 @@ class GPUDecoder(DistDecoder):
             self.num_inner_epochs.append(inner_epoch)
             if not torch.any(self.dgl_graph.ndata['odd']):
                 break
+        self.gpu_latency = time.time() - start_time
 
         self.dgl_graph = self.dgl_graph.cpu()  # move back to CPU
 
