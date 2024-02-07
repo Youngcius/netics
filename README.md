@@ -1,4 +1,4 @@
-# Alibaba Quantum Error Correction DSK
+# Alibaba Quantum Error Correction SDK
 
 This repository contains the implementations of algorithmic decoders for repetition codes and surface codes.
 
