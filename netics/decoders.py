@@ -3,11 +3,11 @@ import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 
-from alidecoding.utils import get_leaf, proj_3d_to_2d
-from alidecoding.syndromes import replace_surf_pseudo_with_visual, replace_rep_pseudo_with_visual
-from alidecoding.syndromes import visualize_surf_decoding_graph, visualize_rep_decoding_graph
-from alidecoding.syndromes import project_surf_errors, project_rep_errors
-from alidecoding.stabilizers import surface_code_stabilizer, repetition_code_stabilizer
+from netics.utils import get_leaf, proj_3d_to_2d
+from netics.syndromes import replace_surf_pseudo_with_visual, replace_rep_pseudo_with_visual
+from netics.syndromes import visualize_surf_decoding_graph, visualize_rep_decoding_graph
+from netics.syndromes import project_surf_errors, project_rep_errors
+from netics.stabilizers import surface_code_stabilizer, repetition_code_stabilizer
 
 
 class Decoder:

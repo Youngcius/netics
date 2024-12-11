@@ -9,8 +9,8 @@ sys.path.append('..')
 import time
 import argparse
 import numpy as np
-from alidecoding import syndromes
-from alidecoding.unionfind import mono, dist, gpu
+from netics import syndromes
+from netics.unionfind import mono, dist, gpu
 from rich import console
 
 console = console.Console()

@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import qiskit.quantum_info as qi
 from functools import reduce
 from typing import Dict, Tuple
-from alidecoding.utils import proj_3d_to_2d
+from netics.utils import proj_3d_to_2d
 
 
 def sample_errors(decoding_graph: nx.Graph):

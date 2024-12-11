@@ -11,9 +11,9 @@ import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 
-from alidecoding.decoders import Decoder, RepDecoder, SurfDecoder
-from alidecoding.utils import proj_3d_to_2d
-from alidecoding.syndromes import replace_surf_pseudo_with_visual, replace_rep_pseudo_with_visual
+from netics.decoders import Decoder, RepDecoder, SurfDecoder
+from netics.utils import proj_3d_to_2d
+from netics.syndromes import replace_surf_pseudo_with_visual, replace_rep_pseudo_with_visual
 
 
 # from rich import console

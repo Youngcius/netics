@@ -8,8 +8,8 @@ import time
 import torch
 import networkx as nx
 
-from alidecoding.utils import networkx_to_dgl, dgl_to_networkx
-from alidecoding.unionfind.dist import DistDecoder, DistRepDecoder, DistSurfDecoder
+from netics.utils import networkx_to_dgl, dgl_to_networkx
+from netics.unionfind.dist import DistDecoder, DistRepDecoder, DistSurfDecoder
 
 
 # from rich import console

@@ -10,9 +10,9 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from typing import List, Tuple, Dict, Set
 
-from alidecoding.decoders import Decoder, RepDecoder, SurfDecoder
-from alidecoding.syndromes import replace_surf_pseudo_with_visual, replace_rep_pseudo_with_visual
-from alidecoding.utils import proj_3d_to_2d
+from netics.decoders import Decoder, RepDecoder, SurfDecoder
+from netics.syndromes import replace_surf_pseudo_with_visual, replace_rep_pseudo_with_visual
+from netics.utils import proj_3d_to_2d
 
 
 class Node:

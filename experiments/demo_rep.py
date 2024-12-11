@@ -11,8 +11,8 @@ import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 import json
-from alidecoding.unionfind import mono, dist, gpu
-from alidecoding import syndromes
+from netics.unionfind import mono, dist, gpu
+from netics import syndromes
 from rich import console
 
 console = console.Console()
